@@ -24,7 +24,8 @@ const app = express();
 // });
 
 connectDB();
-app.use(cors({ origin: process.env.FRONTEND_URI }));
+const uri = process.env.FRONTEND_URI;
+app.use(cors({ origin: uri }));
 
 app.use(express.json({ limit: "50mb" }));
 app.use("/api/product", product);
