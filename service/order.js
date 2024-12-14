@@ -12,9 +12,9 @@ const getOrders = async (req, res, next) => {
 
 const getOrderByID = async (req, res, next) => {
   try {
-    const [order] = await connection.query(
+    const order = await connection.query(
       "SELECT * FROM orders WHERE order_id = ?",
-      [parseInt(req.params.id)]
+      [req.params.id]
     );
     if (order.length == 0)
       return res.status(404).json({ message: "Order not found" });
@@ -48,6 +48,7 @@ const getOrdersbyCustomerId = async (req, res, next) => {
 const createOrder = async (req, res, next) => {
   try {
     const order = [
+      req.body.order_id,
       req.body.product_id,
       req.body.customer_id,
       req.body.quantity,
@@ -56,13 +57,35 @@ const createOrder = async (req, res, next) => {
       req.body.payment_id,
     ];
     const ord = await connection.query(
-      "INSERT INTO orders (product_id,customer_id,quantity,address,status,payment_id) values (?,?,?,?,?,?)",
+      "INSERT INTO orders (order_id,product_id,customer_id,quantity,address,status,payment_id) values (?,?,?,?,?,?,?)",
       order
     );
-    console.log(ord.length);
     res.status(201).json({ message: "Order created" });
   } catch (err) {
     res.status(500).json({ error: err.message });
+    console.log(err.message);
+  }
+};
+
+const createOrderwithPayment = async (data) => {
+  try {
+    const order = [
+      data.order_id,
+      data.product_id,
+      data.customer_id,
+      data.quantity,
+      `Name: ${data.address.name}, Address Line 1: ${data.address.line1}, Address Line 2: ${data.address.line2}, City: ${data.address.city}, State: ${data.address.state}, Pincode: ${data.address.pincode}, Mobile: ${data.address.mobile}`,
+      data.status,
+      data.payment_id,
+    ];
+
+    const ord = await connection.query(
+      "INSERT INTO orders (order_id,product_id,customer_id,quantity,address,status,payment_id) values (?,?,?,?,?,?,?)",
+      order
+    );
+    // res.status(201).json({ message: "Order created" });
+  } catch (err) {
+    // res.status(500).json({ error: err.message });
     console.log(err.message);
   }
 };
@@ -114,6 +137,7 @@ const order = {
   getOrders,
   getOrderByID,
   createOrder,
+  createOrderwithPayment,
   updateOrderById,
   deleteOrder,
   getOrdersbyCustomerId,
