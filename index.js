@@ -19,8 +19,30 @@ app.get("/hello", async (req, res, next) => {
 });
 
 connectDB();
-const uri = process.env.FRONTEND_URI;
-app.use(cors({ origin: uri }));
+
+const allowedOrigins = [
+  process.env.FRONTEND_URI,
+  process.env.FRONTEND_URI2,
+  process.env.FRONTEND_URI3,
+  "http://localhost:5173",
+];
+
+// CORS configuration
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps, curl, etc.)
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true); // Allow the request
+    } else {
+      callback(new Error("Not allowed by CORS")); // Reject the request
+    }
+  },
+  credentials: true, // Allow cookies or authorization headers
+};
+
+app.use(cors(corsOptions));
 
 app.use(express.json({ limit: "50mb" }));
 app.use("/api/product", product);
