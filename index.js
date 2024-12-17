@@ -29,7 +29,7 @@ app.use("/api/orders", order);
 app.use("/api/cart", cart);
 app.use("/api/payment", payment);
 
-const port = 3000;
+const port = process.env.PORT || 8080;
 app.listen(port, () => {
   console.log(`Server strated at port: ${port}`);
 });
