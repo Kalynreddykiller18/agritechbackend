@@ -12,12 +12,7 @@ const app = express();
 
 app.get("/hello", async (req, res, next) => {
   try {
-    connection.query("select * from orders", (err, result) => {
-      if (err) {
-        return console.log(err.message);
-      }
-      console.log(result);
-    });
+    res.status(200).json({ message: "hello" });
   } catch (err) {
     console.log(err.message);
   }
