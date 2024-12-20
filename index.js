@@ -6,9 +6,13 @@ import cart from "./controllers/Cart.js";
 import payment from "./controllers/Payment.js";
 import connectDB from "./config/db.js";
 import cors from "cors";
-import connection from "./config/sqldb.js";
+import bodyParser from "body-parser";
+import cookieParser from "cookie-parser";
 
 const app = express();
+
+app.use(bodyParser.json());
+app.use(cookieParser());
 
 app.get("/hello", async (req, res, next) => {
   try {

@@ -2,6 +2,7 @@ import Customer from "../models/customer.js";
 import Token from "../models/token.js";
 import bcrypt from "bcrypt";
 import nodemailer from "nodemailer";
+import jwt from "jsonwebtoken";
 
 const getAllCusomers = async (req, res, next) => {
   try {
@@ -29,6 +30,26 @@ const getCustomerById = async (req, res) => {
     res.status(200).json({ customer: data });
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+};
+
+const getDetailsByJWT = async (req, res, next) => {
+  try {
+    const idn = req.user.id;
+    const customer = await Customer.findOne({ id: idn });
+    if (!customer) return res.status(404).json({ error: "Customer not found" });
+    const data = {
+      id: customer.id,
+      firstname: customer.firstname,
+      lastname: customer.lastname,
+      email: customer.email,
+      mobile: customer.mobile,
+      adress: customer?.adress,
+      enable: customer?.enable,
+    };
+    res.status(200).json(data);
+  } catch (err) {
+    console.log("Error in jwt", err.message);
   }
 };
 
@@ -77,7 +98,6 @@ const signup = async (req, res) => {
 const login = async (req, res) => {
   try {
     const customer = await Customer.findOne({ email: req.body.email });
-
     if (!customer) {
       return res.status(404).json({ message: "User not Found" });
     }
@@ -94,12 +114,42 @@ const login = async (req, res) => {
       enable: customer?.enable,
     };
 
-    if (isValid)
+    if (isValid) {
+      ///////////////////////////// JsonWebToken /////////////////////
+      const SECRET_KEY = process.env.SECRET_KEY;
+      const token = jwt.sign(
+        { id: newcust.id, username: newcust.firstname, role: "user" },
+        SECRET_KEY,
+        { expiresIn: "1hr" }
+      );
+      res.cookie("token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "Strict",
+        maxAge: 3600000,
+      });
+
       return res.status(200).json({ message: "Login successful", newcust });
+    }
 
     res.status(401).json({ message: "Invalid credentials" });
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+};
+
+const logout = async (req, res, next) => {
+  try {
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "Strict",
+    });
+
+    res.status(200).json({ message: "Logged out successfully" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+    console.log(err.message);
   }
 };
 
@@ -164,13 +214,9 @@ const forgottPassword = async (req, res, next) => {
 const passwordValidation = async (req, res, next) => {
   try {
     const token = decodeURIComponent(req.params.token);
-    console.log("validation token:", token);
     const tokenData = await Token.findOne({ token });
 
-    console.log("Token", tokenData);
-
     const curTime = Date.now() - tokenData.createdAt;
-    console.log(curTime);
     if (curTime < 1200000) {
       console.log("Valid request");
       return res.status(200).json({ message: "Valid Url" });
@@ -300,6 +346,7 @@ const deleteAdress = async (req, res, next) => {
 const customer = {
   getAllCusomers,
   getCustomerById,
+  getDetailsByJWT,
   signup,
   addAddress,
   login,
@@ -309,6 +356,7 @@ const customer = {
   passwordValidation,
   updatePassword,
   deleteAdress,
+  logout,
 };
 
 export default customer;

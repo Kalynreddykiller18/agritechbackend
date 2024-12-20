@@ -1,10 +1,12 @@
 import express from "express";
 import CustomerService from "../service/customer.js";
+import authenticateJwt from "../middleware/authenticateJwt.js";
 
 const router = express.Router();
 const {
   getAllCusomers,
   getCustomerById,
+  getDetailsByJWT,
   signup,
   addAddress,
   login,
@@ -14,9 +16,13 @@ const {
   passwordValidation,
   updatePassword,
   deleteAdress,
+  logout,
 } = CustomerService;
 
+router.get("/byjwt", authenticateJwt, getDetailsByJWT);
 router.get("/", getAllCusomers);
+
+router.get("/logout", authenticateJwt, logout);
 
 router.get("/:id", getCustomerById);
 
