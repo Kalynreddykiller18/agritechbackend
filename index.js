@@ -16,7 +16,7 @@ app.use(cookieParser());
 
 app.get("/hello", async (req, res, next) => {
   try {
-    res.status(200).json({ message: "hello" });
+    res.status(200).json({ message: "hello dev" });
   } catch (err) {
     console.log(err.message);
   }
