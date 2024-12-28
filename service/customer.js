@@ -122,14 +122,10 @@ const login = async (req, res) => {
         SECRET_KEY,
         { expiresIn: "1hr" }
       );
-      res.cookie("token", token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "None",
-        maxAge: 3600000,
-      });
 
-      return res.status(200).json({ message: "Login successful", newcust });
+      return res
+        .status(200)
+        .json({ token: token, message: "Login successful", newcust });
     }
 
     res.status(401).json({ message: "Invalid credentials" });

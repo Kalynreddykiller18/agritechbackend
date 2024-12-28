@@ -3,7 +3,15 @@ import jwt from "jsonwebtoken";
 const secret = process.env.SECRET_KEY;
 
 const authenticateJwt = (req, res, next) => {
-  const token = req.cookies?.token;
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader) {
+    return res.status(403).json({ message: "Token missing" });
+  }
+
+  const token = authHeader.split(" ")[1];
+
+  console.log(token);
   if (!token) {
     return res.status(403).json({ message: "Token missing" });
   }
