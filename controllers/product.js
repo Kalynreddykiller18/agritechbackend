@@ -9,11 +9,13 @@ const {
   updateProductById,
   delProdById,
   delAllProducts,
+  returnThroughput,
 } = ServiceProduct;
 
 router.post("/", addProduct);
 
 router.get("/:id", getProductById);
+router.get("/throughput", returnThroughput);
 
 router.get("/", getAllProducts);
 
