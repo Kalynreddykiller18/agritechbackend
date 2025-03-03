@@ -14,8 +14,8 @@ const {
 
 router.post("/", addProduct);
 
-router.get("/:id", getProductById);
 router.get("/throughput", returnThroughput);
+router.get("/:id", getProductById);
 
 router.get("/", getAllProducts);
 
